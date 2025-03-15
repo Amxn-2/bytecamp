@@ -1,149 +1,111 @@
-import { NextResponse } from "next/server"
-import type { MumbaiHealthData } from "@/lib/types"
+import type { MumbaiHealthData } from "@/lib/types";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse } from "next/server";
 
-// This is a mock API endpoint that would be replaced with actual Gemini API integration
 export async function GET() {
   try {
-    // In a real implementation, this would fetch data from the Gemini API
-    // For now, we'll return mock data that matches our TypeScript interface
-    const mockData: MumbaiHealthData = {
-      timestamp: new Date().toISOString(),
-      environmentalData: {
-        airQuality: {
-          aqi: 156,
-          pm25: 75.2,
-          pm10: 120.5,
-          o3: 42.1,
-          no2: 38.7,
-          so2: 15.3,
-          co: 1.2,
-        },
-        waterQuality: {
-          ph: 7.2,
-          turbidity: 5.8,
-          dissolvedOxygen: 6.5,
-          conductivity: 450,
-          temperature: 28.3,
-        },
-        noiseLevel: {
-          average: 68.5,
-          peak: 92.3,
-          timeOfPeak: "08:30:00",
-        },
-        sensors: [
-          {
-            id: "air-001",
-            type: "air",
-            location: { latitude: 19.076, longitude: 72.8777 },
-            reading: 156,
-            unit: "AQI",
-            lastUpdated: new Date().toISOString(),
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `
+      Provide the most recent health data for Mumbai as of the current date and time, including environmental data, disease outbreaks, and mental health reports, in the following JSON format. Ensure the response is a valid JSON object with no additional text outside the JSON structure:
+
+      {
+        "timestamp": "ISO date string",
+        "environmentalData": {
+          "airQuality": {
+            "aqi": number,
+            "pm25": number,
+            "pm10": number,
+            "o3": number,
+            "no2": number,
+            "so2": number,
+            "co": number
           },
-          {
-            id: "water-001",
-            type: "water",
-            location: { latitude: 19.033, longitude: 72.8296 },
-            reading: 7.2,
-            unit: "pH",
-            lastUpdated: new Date().toISOString(),
+          "waterQuality": {
+            "ph": number,
+            "turbidity": number,
+            "dissolvedOxygen": number,
+            "conductivity": number,
+            "temperature": number
           },
-          {
-            id: "noise-001",
-            type: "noise",
-            location: { latitude: 19.0178, longitude: 72.8478 },
-            reading: 68.5,
-            unit: "dB",
-            lastUpdated: new Date().toISOString(),
+          "noiseLevel": {
+            "average": number,
+            "peak": number,
+            "timeOfPeak": "HH:MM:SS"
           },
+          "sensors": [
+            {
+              "id": string,
+              "type": "air" | "water" | "noise",
+              "location": { "latitude": number, "longitude": number },
+              "reading": number,
+              "unit": string,
+              "lastUpdated": "ISO date string"
+            }
+          ]
+        },
+        "diseaseOutbreaks": [
+          {
+            "id": string,
+            "disease": string,
+            "severity": "low" | "medium" | "high",
+            "affectedAreas": [
+              {
+                "name": string,
+                "location": { "latitude": number, "longitude": number },
+                "caseCount": number
+              }
+            ],
+            "startDate": "ISO date string",
+            "status": "active" | "contained" | "resolved",
+            "symptoms": string[],
+            "preventionMeasures": string[]
+          }
         ],
-      },
-      diseaseOutbreaks: [
-        {
-          id: "outbreak-001",
-          disease: "Dengue Fever",
-          severity: "high",
-          affectedAreas: [
-            {
-              name: "Dharavi",
-              location: { latitude: 19.038, longitude: 72.8538 },
-              caseCount: 127,
-            },
-            {
-              name: "Worli",
-              location: { latitude: 19.0096, longitude: 72.8175 },
-              caseCount: 83,
-            },
-          ],
-          startDate: "2023-07-15T00:00:00Z",
-          status: "active",
-          symptoms: ["High Fever", "Severe Headache", "Pain Behind Eyes", "Joint and Muscle Pain", "Rash"],
-          preventionMeasures: [
-            "Eliminate standing water",
-            "Use mosquito repellent",
-            "Wear long sleeves",
-            "Use bed nets",
-          ],
-        },
-        {
-          id: "outbreak-002",
-          disease: "Gastroenteritis",
-          severity: "medium",
-          affectedAreas: [
-            {
-              name: "Bandra East",
-              location: { latitude: 19.0596, longitude: 72.8295 },
-              caseCount: 56,
-            },
-          ],
-          startDate: "2023-08-02T00:00:00Z",
-          status: "contained",
-          symptoms: ["Diarrhea", "Abdominal Cramps", "Nausea", "Vomiting", "Fever"],
-          preventionMeasures: [
-            "Wash hands frequently",
-            "Drink clean water",
-            "Cook food thoroughly",
-            "Proper sanitation",
-          ],
-        },
-      ],
-      mentalHealthReports: [
-        {
-          id: "mh-001",
-          area: "Andheri",
-          location: { latitude: 19.1136, longitude: 72.8697 },
-          stressLevel: 7,
-          anxietyLevel: 6,
-          depressionLevel: 5,
-          reportCount: 245,
-          timestamp: "2023-08-10T00:00:00Z",
-          sentimentAnalysis: {
-            positive: 25,
-            negative: 45,
-            neutral: 30,
-          },
-        },
-        {
-          id: "mh-002",
-          area: "Colaba",
-          location: { latitude: 18.9067, longitude: 72.8147 },
-          stressLevel: 5,
-          anxietyLevel: 4,
-          depressionLevel: 3,
-          reportCount: 178,
-          timestamp: "2023-08-10T00:00:00Z",
-          sentimentAnalysis: {
-            positive: 40,
-            negative: 30,
-            neutral: 30,
-          },
-        },
-      ],
+        "mentalHealthReports": [
+          {
+            "id": string,
+            "area": string,
+            "location": { "latitude": number, "longitude": number },
+            "stressLevel": number,
+            "anxietyLevel": number,
+            "depressionLevel": number,
+            "reportCount": number,
+            "timestamp": "ISO date string",
+            "sentimentAnalysis": {
+              "positive": number,
+              "negative": number,
+              "neutral": number
+            }
+          }
+        ]
+      }
+    `;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+
+    const startIndex = responseText.indexOf("{");
+    const endIndex = responseText.lastIndexOf("}");
+
+    if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+      throw new Error("No valid JSON object found in the response");
     }
 
-    return NextResponse.json(mockData)
+    // Extract the JSON string
+    const jsonString = responseText.substring(startIndex, endIndex + 1);
+
+    // Parse the response as JSON and type it as MumbaiHealthData
+    const healthData: MumbaiHealthData = JSON.parse(jsonString);
+
+    // Return the data as a JSON response
+    return NextResponse.json(healthData);
   } catch (error) {
-    console.error("Error in health-data API route:", error)
-    return NextResponse.json({ error: "Failed to fetch health data" }, { status: 500 })
+    console.error("Error in health-data API route:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch health data" },
+      { status: 500 }
+    );
   }
 }
-

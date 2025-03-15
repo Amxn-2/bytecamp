@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Bell, Settings } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { Bell, Menu, Settings } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/" },
   { name: "Pollution Data", href: "/pollution" },
   { name: "Outbreak Alerts", href: "/outbreaks" },
   { name: "Mental Health", href: "/mental-health" },
-]
+];
 
 export default function Header() {
-  const [open, setOpen] = useState(false)
-  const pathname = usePathname()
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -33,8 +33,14 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
               <div className="px-7">
-                <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
-                  <span className="font-mono text-lg font-bold text-teal">ResiliChain</span>
+                <Link
+                  href="/"
+                  className="flex items-center"
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="font-mono text-lg font-bold text-teal">
+                    ResiliChain
+                  </span>
                 </Link>
               </div>
               <nav className="flex flex-col gap-4 px-2 pt-8">
@@ -45,7 +51,9 @@ export default function Header() {
                     onClick={() => setOpen(false)}
                     className={cn(
                       "flex items-center gap-2 px-5 py-2 text-base font-medium transition-colors hover:text-primary",
-                      pathname === item.href ? "text-primary" : "text-muted-foreground",
+                      pathname === item.href
+                        ? "text-primary"
+                        : "text-muted-foreground"
                     )}
                   >
                     {item.name}
@@ -60,8 +68,12 @@ export default function Header() {
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-mono text-lg font-bold text-teal hidden md:inline-block">ResiliChain</span>
-            <span className="font-mono text-lg font-bold text-teal md:hidden">RC</span>
+            <span className="font-mono text-lg font-bold text-teal hidden md:inline-block">
+              ResiliChain
+            </span>
+            <span className="font-mono text-lg font-bold text-teal md:hidden">
+              ResiliChain
+            </span>
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-6">
@@ -71,11 +83,15 @@ export default function Header() {
               href={item.href}
               className={cn(
                 "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-                pathname === item.href ? "text-primary" : "text-muted-foreground",
+                pathname === item.href
+                  ? "text-primary"
+                  : "text-muted-foreground"
               )}
             >
               {item.name}
-              {item.name === "Outbreak Alerts" && <Badge variant="destructive">2</Badge>}
+              {item.name === "Outbreak Alerts" && (
+                <Badge variant="destructive">2</Badge>
+              )}
             </Link>
           ))}
         </nav>
@@ -95,6 +111,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
-
