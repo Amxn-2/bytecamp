@@ -1,4 +1,5 @@
 "use client";
+
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,13 +15,6 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
-
-// export const metadata: Metadata = {
-//   title: "ResiliChain - Urban Health Resilience Platform",
-//   description:
-//     "Visualizing Mumbai's environmental, disease, and mental health data",
-//   applicationName: "ResiliChain",
-// };
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -39,6 +33,15 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>ResiliChain - Urban Health Resilience Platform</title>
+        <meta
+          name="description"
+          content="Visualizing Mumbai's environmental, disease, and mental health data"
+        />
+        <meta name="application-name" content="ResiliChain" />
+        <meta name="theme-color" content="#0F9E99" />
+      </head>
       <body
         className={`${inter.variable} ${GeistMono.variable} font-sans bg-background p-0`}
       >
