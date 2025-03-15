@@ -1,44 +1,56 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { fetchDiseaseOutbreaks } from "@/lib/api"
-import type { DiseaseOutbreak } from "@/lib/types"
-import { toast } from "sonner"
-import { Loader2, AlertTriangle, Search } from "lucide-react"
-import AlertCard from "@/components/alert-card"
-import MapView from "@/components/map-view"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { fetchDiseaseOutbreaks } from "@/lib/api";
+import type { DiseaseOutbreak } from "@/lib/types";
+import { toast } from "sonner";
+import { Loader2, AlertTriangle, Search } from "lucide-react";
+import AlertCard from "@/components/alert-card";
+import MapView from "@/components/map-view";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function OutbreaksPage() {
-  const [data, setData] = useState<DiseaseOutbreak[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterSeverity, setFilterSeverity] = useState<string>("all")
+  const [data, setData] = useState<DiseaseOutbreak[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSeverity, setFilterSeverity] = useState<string>("all");
 
   useEffect(() => {
     async function loadData() {
       try {
-        const outbreakData = await fetchDiseaseOutbreaks()
-        setData(outbreakData)
+        const outbreakData = await fetchDiseaseOutbreaks();
+        setData(outbreakData);
       } catch (error) {
-        console.error("Error loading outbreak data:", error)
-        toast.error("Failed to load outbreak data")
+        console.error("Error loading outbreak data:", error);
+        toast.error("Failed to load outbreak data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   if (loading) {
     return (
       <div className="container flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!data) {
@@ -48,31 +60,42 @@ export default function OutbreaksPage() {
         <h2 className="text-xl font-semibold">Failed to load data</h2>
         <p className="text-muted-foreground">Please try again later</p>
       </div>
-    )
+    );
   }
 
   // Filter outbreaks based on search term and severity filter
   const filteredOutbreaks = data.filter((outbreak) => {
     const matchesSearch =
       outbreak.disease.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      outbreak.affectedAreas.some((area) => area.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      outbreak.affectedAreas.some((area) =>
+        area.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-    const matchesSeverity = filterSeverity === "all" || outbreak.severity === filterSeverity
+    const matchesSeverity =
+      filterSeverity === "all" || outbreak.severity === filterSeverity;
 
-    return matchesSearch && matchesSeverity
-  })
+    return matchesSearch && matchesSeverity;
+  });
 
   // Calculate total cases
   const totalCases = data.reduce((sum, outbreak) => {
-    return sum + outbreak.affectedAreas.reduce((areaSum, area) => areaSum + area.caseCount, 0)
-  }, 0)
+    return (
+      sum +
+      outbreak.affectedAreas.reduce(
+        (areaSum, area) => areaSum + area.caseCount,
+        0
+      )
+    );
+  }, 0);
 
   // Get all affected areas
-  const allAffectedAreas = data.flatMap((outbreak) => outbreak.affectedAreas)
+  const allAffectedAreas = data.flatMap((outbreak) => outbreak.affectedAreas);
 
   return (
     <div className="container py-6">
-      <h1 className="text-2xl font-bold mb-6 font-mono">Disease Outbreak Alerts</h1>
+      <h1 className="text-2xl font-bold mb-6 font-mono">
+        Disease Outbreak Alerts
+      </h1>
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
@@ -82,7 +105,8 @@ export default function OutbreaksPage() {
           <CardContent>
             <div className="text-3xl font-bold">{data.length}</div>
             <p className="text-sm text-muted-foreground mt-1">
-              Active outbreaks: {data.filter((o) => o.status === "active").length}
+              Active outbreaks:{" "}
+              {data.filter((o) => o.status === "active").length}
             </p>
           </CardContent>
         </Card>
@@ -92,7 +116,9 @@ export default function OutbreaksPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{totalCases}</div>
-            <p className="text-sm text-muted-foreground mt-1">Across {allAffectedAreas.length} affected areas</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Across {allAffectedAreas.length} affected areas
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -101,9 +127,15 @@ export default function OutbreaksPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {data.filter((o) => o.severity === "critical" || o.severity === "high").length}
+              {
+                data.filter(
+                  (o) => o.severity === "critical" || o.severity === "high"
+                ).length
+              }
             </div>
-            <p className="text-sm text-muted-foreground mt-1">High or critical severity outbreaks</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              High or critical severity outbreaks
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -111,7 +143,9 @@ export default function OutbreaksPage() {
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Outbreak Map</CardTitle>
-          <CardDescription>Geographic distribution of disease outbreaks across Mumbai</CardDescription>
+          <CardDescription>
+            Geographic distribution of disease outbreaks across Mumbai
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <MapView outbreaks={data} />
@@ -122,7 +156,9 @@ export default function OutbreaksPage() {
         <Card>
           <CardHeader>
             <CardTitle>Disease Outbreaks</CardTitle>
-            <CardDescription>Detailed information about current disease outbreaks</CardDescription>
+            <CardDescription>
+              Detailed information about current disease outbreaks
+            </CardDescription>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -150,7 +186,9 @@ export default function OutbreaksPage() {
           <CardContent>
             {filteredOutbreaks.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-muted-foreground">No outbreaks match your search criteria</p>
+                <p className="text-muted-foreground">
+                  No outbreaks match your search criteria
+                </p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
@@ -158,10 +196,18 @@ export default function OutbreaksPage() {
                   <AlertCard
                     key={outbreak.id}
                     title={outbreak.disease}
-                    description={`${outbreak.affectedAreas.reduce((sum, area) => sum + area.caseCount, 0)} cases reported across ${outbreak.affectedAreas.length} areas`}
+                    description={`${outbreak.affectedAreas.reduce(
+                      (sum, area) => sum + area.caseCount,
+                      0
+                    )} cases reported across ${
+                      outbreak.affectedAreas.length
+                    } areas`}
                     severity={outbreak.severity}
-                    location={outbreak.affectedAreas.map((area) => area.name).join(", ")}
+                    location={outbreak.affectedAreas
+                      .map((area) => area.name)
+                      .join(", ")}
                     date={new Date(outbreak.startDate).toLocaleDateString()}
+                    source={outbreak.source}
                     actionLink={`/outbreaks/${outbreak.id}`}
                   />
                 ))}
@@ -175,7 +221,9 @@ export default function OutbreaksPage() {
         <Card>
           <CardHeader>
             <CardTitle>Prevention Guidelines</CardTitle>
-            <CardDescription>General guidelines to prevent disease spread</CardDescription>
+            <CardDescription>
+              General guidelines to prevent disease spread
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-2">
@@ -220,6 +268,5 @@ export default function OutbreaksPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

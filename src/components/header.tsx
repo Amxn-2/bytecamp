@@ -13,7 +13,7 @@ const navigation = [
   { name: "Dashboard", href: "/" },
   { name: "Pollution Data", href: "/pollution" },
   { name: "Outbreak Alerts", href: "/outbreaks" },
-  { name: "Mental Health", href: "/mental-health" },
+  // { name: "Mental Health", href: "/mental-health" },
 ];
 
 export default function Header() {

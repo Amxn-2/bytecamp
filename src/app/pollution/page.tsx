@@ -23,6 +23,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  LabelList,
   Legend,
   Line,
   LineChart,
@@ -79,7 +80,7 @@ export default function PollutionPage() {
     { name: "CO", value: data.airQuality.co * 10 }, // Scale up CO for visibility
   ];
 
-  // Mock historical data for line chart
+  // Mock historical data for line chart (latest month reflects current air quality)
   const historicalData = [
     { date: "Jan", aqi: 120, pm25: 60, pm10: 90 },
     { date: "Feb", aqi: 140, pm25: 70, pm10: 100 },
@@ -93,6 +94,29 @@ export default function PollutionPage() {
       pm25: data.airQuality.pm25,
       pm10: data.airQuality.pm10,
     },
+  ];
+
+  const airChartData = [
+    { parameter: "AQI", value: data.airQuality.aqi },
+    { parameter: "PM2.5", value: data.airQuality.pm25 },
+    { parameter: "PM10", value: data.airQuality.pm10 },
+    { parameter: "O₃", value: data.airQuality.o3 },
+    { parameter: "NO₂", value: data.airQuality.no2 },
+    { parameter: "SO₂", value: data.airQuality.so2 },
+    { parameter: "CO", value: data.airQuality.co },
+  ];
+
+  const waterChartData = [
+    { parameter: "pH", value: data.waterQuality.ph },
+    { parameter: "Turbidity", value: data.waterQuality.turbidity },
+    { parameter: "Dissolved O₂", value: data.waterQuality.dissolvedOxygen },
+    { parameter: "Conductivity", value: data.waterQuality.conductivity },
+    { parameter: "Temperature", value: data.waterQuality.temperature },
+  ];
+
+  const noiseChartData = [
+    { parameter: "Average", value: data.noiseLevel.average },
+    { parameter: "Peak", value: data.noiseLevel.peak },
   ];
 
   return (
@@ -159,7 +183,7 @@ export default function PollutionPage() {
           <CardHeader>
             <CardTitle>Air Pollutant Levels</CardTitle>
             <CardDescription>
-              Current levels of major air pollutants in µg/m³ (CO in ppm × 10)
+              Current levels of major air pollutants (µg/m³; CO scaled by 10)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -226,7 +250,7 @@ export default function PollutionPage() {
           <CardHeader>
             <CardTitle>Pollution Sensor Map</CardTitle>
             <CardDescription>
-              Location of air quality, water quality, and noise level sensors
+              Locations of air quality, water quality, and noise level sensors
               across Mumbai
             </CardDescription>
           </CardHeader>
@@ -236,47 +260,158 @@ export default function PollutionPage() {
         </Card>
       </div>
 
-      <div className="mt-4 md:mt-6">
+      <div className="mt-6 md:mt-8">
         <Tabs defaultValue="air" className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-3 gap-2">
             <TabsTrigger value="air">Air Quality</TabsTrigger>
             <TabsTrigger value="water">Water Quality</TabsTrigger>
             <TabsTrigger value="noise">Noise Levels</TabsTrigger>
           </TabsList>
-          <TabsContent value="air" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Air Quality Details</CardTitle>
-                <CardDescription>
-                  Detailed information about air quality parameters and their
-                  health impacts
+
+          {/* Air Quality Chart */}
+          <TabsContent value="air" className="mt-6">
+            <Card className="rounded-xl shadow-lg">
+              <CardHeader className="bg-primary/10 rounded-t-xl px-4 py-3">
+                <CardTitle className="text-xl font-bold text-primary">
+                  Air Quality Parameters
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Latest measurements
                 </CardDescription>
               </CardHeader>
-              <CardContent>{/* Air quality details content */}</CardContent>
+              <CardContent className="p-4">
+                <ChartContainer
+                  className="h-[150px] sm:h-[200px] w-full"
+                  config={{}}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={airChartData}
+                      layout="vertical"
+                      margin={{ right: 16 }}
+                    >
+                      <CartesianGrid horizontal={false} />
+                      <YAxis
+                        dataKey="parameter"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <XAxis type="number" hide />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="value" fill="hsl(210, 80%, 85%)" radius={4}>
+                        <LabelList
+                          dataKey="value"
+                          position="insideRight"
+                          offset={8}
+                          fill="#333"
+                          fontSize={12}
+                          fontWeight="bold"
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="water" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Water Quality Details</CardTitle>
-                <CardDescription>
-                  Detailed information about water quality parameters and their
-                  health impacts
+
+          {/* Water Quality Chart */}
+          <TabsContent value="water" className="mt-6">
+            <Card className="rounded-xl shadow-lg">
+              <CardHeader className="bg-primary/10 rounded-t-xl px-4 py-3">
+                <CardTitle className="text-xl font-bold text-primary">
+                  Water Quality Parameters
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Latest measurements
                 </CardDescription>
               </CardHeader>
-              <CardContent>{/* Water quality details content */}</CardContent>
+              <CardContent className="p-4">
+                <ChartContainer
+                  className="h-[150px] sm:h-[200px] w-full"
+                  config={{}}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={waterChartData}
+                      layout="vertical"
+                      margin={{ right: 16 }}
+                    >
+                      <CartesianGrid horizontal={false} />
+                      <YAxis
+                        dataKey="parameter"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <XAxis type="number" hide />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="value" fill="hsl(120, 80%, 85%)" radius={4}>
+                        <LabelList
+                          dataKey="value"
+                          position="insideRight"
+                          offset={8}
+                          fill="#333"
+                          fontSize={12}
+                          fontWeight="bold"
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="noise" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Noise Level Details</CardTitle>
-                <CardDescription>
-                  Detailed information about noise levels and their health
-                  impacts
+
+          {/* Noise Levels Chart */}
+          <TabsContent value="noise" className="mt-6">
+            <Card className="rounded-xl shadow-lg">
+              <CardHeader className="bg-primary/10 rounded-t-xl px-4 py-3">
+                <CardTitle className="text-xl font-bold text-primary">
+                  Noise Level Measurements
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Latest readings
                 </CardDescription>
               </CardHeader>
-              <CardContent>{/* Noise level details content */}</CardContent>
+              <CardContent className="p-4">
+                <ChartContainer
+                  className="h-[150px] sm:h-[200px] w-full"
+                  config={{}}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={noiseChartData}
+                      layout="vertical"
+                      margin={{ right: 16 }}
+                    >
+                      <CartesianGrid horizontal={false} />
+                      <YAxis
+                        dataKey="parameter"
+                        type="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <XAxis type="number" hide />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="value" fill="hsl(45, 80%, 85%)" radius={4}>
+                        <LabelList
+                          dataKey="value"
+                          position="insideRight"
+                          offset={8}
+                          fill="#333"
+                          fontSize={12}
+                          fontWeight="bold"
+                        />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

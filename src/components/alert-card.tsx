@@ -18,6 +18,10 @@ interface AlertCardProps {
   severity: "low" | "medium" | "high" | "critical";
   location?: string;
   date?: string;
+  source?: {
+    name: string;
+    url: string;
+  };
   actionLink?: string;
   actionText?: string;
   className?: string;
@@ -29,6 +33,7 @@ export default function AlertCard({
   severity,
   location,
   date,
+  source,
   actionLink,
   actionText = "View Details",
   className,
@@ -78,7 +83,20 @@ export default function AlertCard({
             <MapPin className="mr-1 h-3 w-3" /> {location}
           </div>
         )}
-        {date && <div className="text-sm">Reported: {date}</div>}
+        {date && <div className="text-sm mb-1">Reported: {date}</div>}
+        {source && (
+          <div className="text-sm">
+            Source:{" "}
+            <a
+              href={source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              {source.name}
+            </a>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex justify-between">
         <Badge

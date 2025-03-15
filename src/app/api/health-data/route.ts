@@ -8,7 +8,9 @@ export async function GET() {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `
-      Provide the most recent health data for Mumbai as of the current date and time, including environmental data, disease outbreaks, and mental health reports, in the following JSON format. Ensure the response is a valid JSON object with no additional text outside the JSON structure:
+      Provide the most recent health data for Mumbai as of the current date and time, including environmental data, disease outbreaks, and mental health reports, in the following JSON format. 
+      
+      Use only authentic and generic sources such as the Maharashtra government, Mumbai government, BMC, MCGM, etc., and reputable news outlets like Lokmat, New Today, TimesofIndia, etc. If any news is originally in Marathi, translate it appropriately into English. For every data section, include a "source" field with the name of the source and its exact URL so that the user can verify the information. Ensure that the data, particularly about disease outbreaks, is valid and accurate. For AQI, use the US AQI scale and websites like AQICN, OpenAQ, etc., for reference. For water quality, use the WHO guidelines and Maharashtra pollution control board. For noise levels, use the WHO guidelines and standards with official maharashtra government data as well as trusted sources. For disease outbreaks, include the disease name, severity, affected areas, case count, start date, status, symptoms, and prevention measures. For mental health reports, include the area, stress, anxiety, depression levels, report count, sentiment analysis, and source.
 
       {
         "timestamp": "ISO date string",
@@ -43,7 +45,11 @@ export async function GET() {
               "unit": string,
               "lastUpdated": "ISO date string"
             }
-          ]
+          ],
+          "source": {
+            "name": string,
+            "url": string
+          }
         },
         "diseaseOutbreaks": [
           {
@@ -60,7 +66,11 @@ export async function GET() {
             "startDate": "ISO date string",
             "status": "active" | "contained" | "resolved",
             "symptoms": string[],
-            "preventionMeasures": string[]
+            "preventionMeasures": string[],
+            "source": {
+              "name": string,
+              "url": string
+            }
           }
         ],
         "mentalHealthReports": [
@@ -77,6 +87,10 @@ export async function GET() {
               "positive": number,
               "negative": number,
               "neutral": number
+            },
+            "source": {
+              "name": string,
+              "url": string
             }
           }
         ]
@@ -98,7 +112,7 @@ export async function GET() {
 
     // Parse the response as JSON and type it as MumbaiHealthData
     const healthData: MumbaiHealthData = JSON.parse(jsonString);
-
+    // console.log(jsonString);
     // Return the data as a JSON response
     return NextResponse.json(healthData);
   } catch (error) {
