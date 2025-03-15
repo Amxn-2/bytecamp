@@ -1,151 +1,58 @@
-"use client"
-
-import { useEffect } from "react"
-import { MapContainer, TileLayer, Popup, useMap, CircleMarker } from "react-leaflet"
-import { divIcon } from "leaflet"
-import { Card } from "@/components/ui/card"
-import type { GeoLocation, SensorData, DiseaseOutbreak, MentalHealthReport } from "@/lib/types"
-
-// Import Leaflet CSS in the client component
+import type React from "react"
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
+import { Card } from "@/components/ui/card"
 
-// Fallback coordinates for Mumbai
-const MUMBAI_CENTER: GeoLocation = { latitude: 19.076, longitude: 72.8777 }
-
-// Export the interface for use in other files
-export interface DynamicMapProps {
-    sensors?: SensorData[];
-    outbreaks?: DiseaseOutbreak[];
-    mentalHealthReports?: MentalHealthReport[];
-    center?: GeoLocation;
-    zoom?: number;
-  }
-
-// Component to recenter map when center prop changes
-function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap()
-  useEffect(() => {
-    map.setView(center, zoom)
-  }, [center, zoom, map])
-  return null
+interface Location {
+  latitude: number
+  longitude: number
 }
 
-// Create custom div icons for different marker types
-const createCustomIcon = (type: string) => {
-  return divIcon({
-    className: "",
-    html: `<div class="custom-marker ${type}-marker">${type.charAt(0).toUpperCase()}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-  })
+interface AffectedArea {
+  name: string
+  location: Location
+  caseCount: number
 }
 
-export default function DynamicMap({
-  sensors = [],
-  outbreaks = [],
-  mentalHealthReports = [],
-  center = MUMBAI_CENTER,
-  zoom = 12,
-}: DynamicMapProps) {
-  const mapCenter: [number, number] = [center.latitude, center.longitude]
+interface Outbreak {
+  id: string
+  disease: string
+  affectedAreas: AffectedArea[]
+  severity: "low" | "medium" | "high" | "critical"
+  status: "active" | "contained" | "resolved"
+}
 
-  // Create custom icons
-  const airIcon = createCustomIcon("air")
-  const waterIcon = createCustomIcon("water")
-  const noiseIcon = createCustomIcon("noise")
-  const outbreakIcon = createCustomIcon("outbreak")
-  const mentalIcon = createCustomIcon("mental")
+interface DynamicMapProps {
+  outbreaks: Outbreak[]
+}
+
+const DynamicMap: React.FC<DynamicMapProps> = ({ outbreaks }) => {
+  const center: [number, number] = [0, 0] // Default center
 
   return (
-    <Card className="w-full responsive-map overflow-hidden">
-      <MapContainer
-        center={mapCenter}
-        zoom={zoom}
-        scrollWheelZoom={false}
-        style={{ height: "100%", width: "100%" }}
-      >
-        <>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <ChangeView center={mapCenter} zoom={zoom} />
+    <Card className="w-full responsive-map overflow-hidden" style={{ height: "500px" }}>
+      <MapContainer center={center} zoom={2} style={{ height: "100%", width: "100%" }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
 
-          {/* Render sensor markers */}
-          {sensors.map((sensor) => (
+        {/* Render outbreak markers */}
+        {outbreaks.flatMap((outbreak) =>
+          outbreak.affectedAreas.map((area) => (
             <CircleMarker
-              key={sensor.id}
-              center={[sensor.location.latitude, sensor.location.longitude]}
-              radius={8}
+              key={`${outbreak.id}-${area.name}`}
+              center={[area.location.latitude, area.location.longitude]}
+              radius={Math.min(10 + area.caseCount / 10, 20)}
               pathOptions={{
                 fillColor:
-                  sensor.type === "air"
-                    ? "#ff5252"
-                    : sensor.type === "water"
-                      ? "#2196f3"
-                      : "#ffc107",
-                fillOpacity: 0.8,
-                color: "white",
-                weight: 1,
-              }}
-            >
-              <Popup>
-                <div className="p-2">
-                  <h3 className="font-bold">{sensor.type.toUpperCase()} Sensor</h3>
-                  <p>ID: {sensor.id}</p>
-                  <p>
-                    Reading: {sensor.reading} {sensor.unit}
-                  </p>
-                  <p>Last Updated: {new Date(sensor.lastUpdated).toLocaleString()}</p>
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
-
-          {/* Render outbreak markers */}
-          {outbreaks.flatMap((outbreak) =>
-            {outbreaks.flatMap((outbreak) =>
-                outbreak.affectedAreas.map((area) => (
-                  <CircleMarker
-                    key={`${outbreak.id}-${area.name}`}
-                    center={[area.location.latitude, area.location.longitude]}
-                    radius={Math.min(10 + area.caseCount / 10, 20)}
-                    pathOptions={{
-                      fillColor:
-                        outbreak.severity === "critical"
-                          ? "#d32f2f"
-                          : outbreak.severity === "high"
-                            ? "#f44336"
-                            : outbreak.severity === "medium"
-                              ? "#ff9800"
-                              : "#4caf50",
-                      fillOpacity: 0.7,
-                      color: "white",
-                      weight: 1,
-                    }}
-                  >
-                    <Popup>
-                      <div className="p-2">
-                        <h3 className="font-bold">{outbreak.disease}</h3>
-                        <p>Area: {area.name}</p>
-                        <p>Cases: {area.caseCount}</p>
-                        <p>Severity: {outbreak.severity}</p>
-                        <p>Status: {outbreak.status}</p>
-                      </div>
-                    </Popup>
-                  </CircleMarker>
-                ))
-              )}
-          )}
-
-          {/* Render mental health report markers */}
-          {mentalHealthReports.map((report) => (
-            <CircleMarker
-              key={report.id}
-              center={[report.location.latitude, report.location.longitude]}
-              radius={8}
-              pathOptions={{
-                fillColor: "#4caf50",
+                  outbreak.severity === "critical"
+                    ? "#d32f2f"
+                    : outbreak.severity === "high"
+                      ? "#f44336"
+                      : outbreak.severity === "medium"
+                        ? "#ff9800"
+                        : "#4caf50",
                 fillOpacity: 0.7,
                 color: "white",
                 weight: 1,
@@ -153,18 +60,20 @@ export default function DynamicMap({
             >
               <Popup>
                 <div className="p-2">
-                  <h3 className="font-bold">Mental Health Report</h3>
-                  <p>Area: {report.area}</p>
-                  <p>Stress Level: {report.stressLevel}/10</p>
-                  <p>Anxiety Level: {report.anxietyLevel}/10</p>
-                  <p>Depression Level: {report.depressionLevel}/10</p>
-                  <p>Reports: {report.reportCount}</p>
+                  <h3 className="font-bold">{outbreak.disease}</h3>
+                  <p>Area: {area.name}</p>
+                  <p>Cases: {area.caseCount}</p>
+                  <p>Severity: {outbreak.severity}</p>
+                  <p>Status: {outbreak.status}</p>
                 </div>
               </Popup>
             </CircleMarker>
-          ))}
-        </>
+          )),
+        )}
       </MapContainer>
     </Card>
   )
 }
+
+export default DynamicMap
+

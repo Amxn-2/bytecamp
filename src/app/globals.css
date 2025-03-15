@@ -76,3 +76,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add these styles to your global CSS or create a new CSS file */
+.responsive-map {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .responsive-map {
+    height: 500px;
+  }
+}
+
+/* Custom marker styles */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+}
+
+.air-marker {
+  background-color: #ff5252;
+}
+
+.water-marker {
+  background-color: #2196f3;
+}
+
+.noise-marker {
+  background-color: #ffc107;
+}
+
+.outbreak-marker {
+  background-color: #f44336;
+}
+
+.mental-marker {
+  background-color: #4caf50;
+}
+

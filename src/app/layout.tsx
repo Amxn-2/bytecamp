@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${GeistMono.variable} font-sans bg-background`}>
+      <body className={`${inter.variable} ${GeistMono.variable} font-sans bg-background p-5`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <div className="flex min-h-screen flex-col">
             <Header />
