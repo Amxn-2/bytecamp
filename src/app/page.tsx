@@ -110,6 +110,7 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <MapView
+              key={data.environmentalData.sensors.map(sensor => sensor.id).join("-")}
               sensors={data.environmentalData.sensors}
               outbreaks={data.diseaseOutbreaks}
               mentalHealthReports={data.mentalHealthReports}
@@ -186,4 +187,3 @@ export default function Home() {
     </div>
   )
 }
-

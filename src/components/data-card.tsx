@@ -28,24 +28,26 @@ export default function DataCard({
 }: DataCardProps) {
   return (
     <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {status && (
-          <Badge
-            variant={
-              status === "success"
-                ? "default"
-                : status === "warning"
-                  ? "secondary"
-                  : status === "error"
-                    ? "destructive"
-                    : "outline"
-            }
-          >
-            {status}
-          </Badge>
-        )}
-        {icon}
+        <div className="flex items-center space-x-2">
+          {status && (
+            <Badge
+              variant={
+                status === "success"
+                  ? "default"
+                  : status === "warning"
+                    ? "secondary"
+                    : status === "error"
+                      ? "destructive"
+                      : "outline"
+              }
+            >
+              {status}
+            </Badge>
+          )}
+          {icon}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
