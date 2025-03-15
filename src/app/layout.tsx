@@ -1,8 +1,10 @@
+"use client";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useHealthDataUpdater } from "@/lib/useHealthDataUpdater";
 import { GeistMono } from "geist/font/mono";
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
 import { Toaster } from "sonner";
@@ -13,12 +15,12 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-export const metadata: Metadata = {
-  title: "ResiliChain - Urban Health Resilience Platform",
-  description:
-    "Visualizing Mumbai's environmental, disease, and mental health data",
-  applicationName: "ResiliChain",
-};
+// export const metadata: Metadata = {
+//   title: "ResiliChain - Urban Health Resilience Platform",
+//   description:
+//     "Visualizing Mumbai's environmental, disease, and mental health data",
+//   applicationName: "ResiliChain",
+// };
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -33,6 +35,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useHealthDataUpdater();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body

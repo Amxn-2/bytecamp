@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import AlertCard from "@/components/alert-card";
+import MapView from "@/components/map-view";
 import {
   Card,
   CardContent,
@@ -8,12 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { fetchDiseaseOutbreaks } from "@/lib/api";
-import type { DiseaseOutbreak } from "@/lib/types";
-import { toast } from "sonner";
-import { Loader2, AlertTriangle, Search } from "lucide-react";
-import AlertCard from "@/components/alert-card";
-import MapView from "@/components/map-view";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,18 +17,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useHealthStore } from "@/lib/healthStore";
+import { AlertTriangle, Loader2, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function OutbreaksPage() {
-  const [data, setData] = useState<DiseaseOutbreak[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
 
+  const healthData = useHealthStore((state) => state.healthData);
   useEffect(() => {
     async function loadData() {
       try {
-        const outbreakData = await fetchDiseaseOutbreaks();
-        setData(outbreakData);
+        // const outbreakData = await fetchDiseaseOutbreaks();
+        // setData(outbreakData);
       } catch (error) {
         console.error("Error loading outbreak data:", error);
         toast.error("Failed to load outbreak data");
@@ -53,7 +52,7 @@ export default function OutbreaksPage() {
     );
   }
 
-  if (!data) {
+  if (!healthData?.diseaseOutbreaks) {
     return (
       <div className="container flex flex-col items-center justify-center min-h-[60vh] gap-2">
         <AlertTriangle className="h-8 w-8 text-destructive" />
@@ -64,7 +63,7 @@ export default function OutbreaksPage() {
   }
 
   // Filter outbreaks based on search term and severity filter
-  const filteredOutbreaks = data.filter((outbreak) => {
+  const filteredOutbreaks = healthData?.diseaseOutbreaks.filter((outbreak) => {
     const matchesSearch =
       outbreak.disease.toLowerCase().includes(searchTerm.toLowerCase()) ||
       outbreak.affectedAreas.some((area) =>
@@ -78,7 +77,7 @@ export default function OutbreaksPage() {
   });
 
   // Calculate total cases
-  const totalCases = data.reduce((sum, outbreak) => {
+  const totalCases = healthData?.diseaseOutbreaks.reduce((sum, outbreak) => {
     return (
       sum +
       outbreak.affectedAreas.reduce(
@@ -89,7 +88,9 @@ export default function OutbreaksPage() {
   }, 0);
 
   // Get all affected areas
-  const allAffectedAreas = data.flatMap((outbreak) => outbreak.affectedAreas);
+  const allAffectedAreas = healthData?.diseaseOutbreaks.flatMap(
+    (outbreak) => outbreak.affectedAreas
+  );
 
   return (
     <div className="container py-6">
@@ -103,10 +104,16 @@ export default function OutbreaksPage() {
             <CardTitle>Total Outbreaks</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{data.length}</div>
+            <div className="text-3xl font-bold">
+              {healthData?.diseaseOutbreaks.length}
+            </div>
             <p className="text-sm text-muted-foreground mt-1">
               Active outbreaks:{" "}
-              {data.filter((o) => o.status === "active").length}
+              {
+                healthData?.diseaseOutbreaks.filter(
+                  (o) => o.status === "active"
+                ).length
+              }
             </p>
           </CardContent>
         </Card>
@@ -128,7 +135,7 @@ export default function OutbreaksPage() {
           <CardContent>
             <div className="text-3xl font-bold">
               {
-                data.filter(
+                healthData?.diseaseOutbreaks.filter(
                   (o) => o.severity === "critical" || o.severity === "high"
                 ).length
               }
@@ -148,7 +155,7 @@ export default function OutbreaksPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <MapView outbreaks={data} />
+          <MapView outbreaks={healthData?.diseaseOutbreaks} />
         </CardContent>
       </Card>
 

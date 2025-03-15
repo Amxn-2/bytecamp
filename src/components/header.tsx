@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useHealthStore } from "@/lib/healthStore";
 import { cn } from "@/lib/utils";
 import { Bell, Menu, Settings } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  const healthData = useHealthStore((state) => state.healthData);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -59,7 +61,11 @@ export default function Header() {
                     {item.name}
                     {item.name === "Outbreak Alerts" && (
                       <Badge variant="destructive" className="ml-auto">
-                        2
+                        {
+                          healthData?.diseaseOutbreaks.filter(
+                            (o) => o.status === "active"
+                          ).length
+                        }
                       </Badge>
                     )}
                   </Link>
@@ -90,7 +96,14 @@ export default function Header() {
             >
               {item.name}
               {item.name === "Outbreak Alerts" && (
-                <Badge variant="destructive">2</Badge>
+                <Badge variant="destructive">
+                  {" "}
+                  {
+                    healthData?.diseaseOutbreaks.filter(
+                      (o) => o.status === "active"
+                    ).length
+                  }
+                </Badge>
               )}
             </Link>
           ))}

@@ -11,8 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchHealthData } from "@/lib/api";
-import type { MumbaiHealthData } from "@/lib/types";
+import { useHealthStore } from "@/lib/healthStore";
 import {
   AlertTriangle,
   Droplet,
@@ -24,17 +23,18 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
-  const [data, setData] = useState<MumbaiHealthData | null>(null);
+  // const [healthData, setData] = useState<MumbaiHealthData | null>(null);
   const [loading, setLoading] = useState(true);
+  const healthData = useHealthStore((state) => state.healthData);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const healthData = await fetchHealthData();
-        setData(healthData);
+        // const healthData = await fetchHealthData();
+        // setData(healthData);
       } catch (error) {
-        console.error("Error loading dashboard data:", error);
-        toast.error("Failed to load dashboard data");
+        console.error("Error loading dashboard healthData:", error);
+        toast.error("Failed to load dashboard healthData");
       } finally {
         setLoading(false);
       }
@@ -50,11 +50,11 @@ export default function Home() {
     );
   }
 
-  if (!data) {
+  if (!healthData) {
     return (
       <div className="container flex flex-col items-center justify-center min-h-[60vh] gap-2">
         <AlertTriangle className="h-8 w-8 text-destructive" />
-        <h2 className="text-xl font-semibold">Failed to load data</h2>
+        <h2 className="text-xl font-semibold">Failed to load healthData</h2>
         <p className="text-muted-foreground">Please try again later</p>
       </div>
     );
@@ -69,14 +69,14 @@ export default function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <DataCard
           title="US Air Quality Index (AQI)"
-          value={data.environmentalData.airQuality.aqi}
+          value={healthData.environmentalData.airQuality.aqi}
           description="Current AQI level based on US standards"
           status={
-            data.environmentalData.airQuality.aqi < 50
+            healthData.environmentalData.airQuality.aqi < 50
               ? "success"
-              : data.environmentalData.airQuality.aqi < 100
+              : healthData.environmentalData.airQuality.aqi < 100
               ? "info"
-              : data.environmentalData.airQuality.aqi < 150
+              : healthData.environmentalData.airQuality.aqi < 150
               ? "warning"
               : "error"
           }
@@ -84,11 +84,11 @@ export default function Home() {
         />
         <DataCard
           title="Water Quality"
-          value={`pH ${data.environmentalData.waterQuality.ph}`}
+          value={`pH ${healthData.environmentalData.waterQuality.ph}`}
           description="Average pH level"
           status={
-            data.environmentalData.waterQuality.ph >= 6.5 &&
-            data.environmentalData.waterQuality.ph <= 8.5
+            healthData.environmentalData.waterQuality.ph >= 6.5 &&
+            healthData.environmentalData.waterQuality.ph <= 8.5
               ? "success"
               : "warning"
           }
@@ -96,18 +96,18 @@ export default function Home() {
         />
         <DataCard
           title="Temperature"
-          value={`${data.environmentalData.waterQuality.temperature}°C`}
+          value={`${healthData.environmentalData.waterQuality.temperature}°C`}
           description="Current temperature"
           icon={<Thermometer className="h-4 w-4 text-muted-foreground" />}
         />
         <DataCard
           title="Noise Level"
-          value={`${data.environmentalData.noiseLevel.average} dB`}
-          description={`Peak: ${data.environmentalData.noiseLevel.peak} dB at ${data.environmentalData.noiseLevel.timeOfPeak}`}
+          value={`${healthData.environmentalData.noiseLevel.average} dB`}
+          description={`Peak: ${healthData.environmentalData.noiseLevel.peak} dB at ${healthData.environmentalData.noiseLevel.timeOfPeak}`}
           status={
-            data.environmentalData.noiseLevel.average < 60
+            healthData.environmentalData.noiseLevel.average < 60
               ? "success"
-              : data.environmentalData.noiseLevel.average < 75
+              : healthData.environmentalData.noiseLevel.average < 75
               ? "warning"
               : "error"
           }
@@ -125,12 +125,12 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <MapView
-              key={data.environmentalData.sensors
+              key={healthData.environmentalData.sensors
                 .map((sensor) => sensor.id)
                 .join("-")}
-              sensors={data.environmentalData.sensors}
-              outbreaks={data.diseaseOutbreaks}
-              mentalHealthReports={data.mentalHealthReports}
+              sensors={healthData.environmentalData.sensors}
+              outbreaks={healthData.diseaseOutbreaks}
+              mentalHealthReports={healthData.mentalHealthReports}
             />
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ export default function Home() {
           </TabsList>
           <TabsContent value="outbreaks" className="mt-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {data.diseaseOutbreaks.map((outbreak) => (
+              {healthData.diseaseOutbreaks.map((outbreak) => (
                 <AlertCard
                   key={outbreak.id}
                   title={outbreak.disease}
@@ -170,13 +170,13 @@ export default function Home() {
                 title="High Air Pollution"
                 description="PM2.5 levels exceeding safe limits in multiple areas"
                 severity={
-                  data.environmentalData.airQuality.aqi > 150
+                  healthData.environmentalData.airQuality.aqi > 150
                     ? "high"
                     : "medium"
                 }
                 location="Andheri, Bandra, Dharavi"
                 date={new Date().toLocaleDateString()}
-                source={data.environmentalData.source}
+                source={healthData.environmentalData.source}
                 actionLink="/pollution"
               />
               <AlertCard
@@ -185,14 +185,14 @@ export default function Home() {
                 severity="medium"
                 location="Worli, Dadar"
                 date={new Date().toLocaleDateString()}
-                source={data.environmentalData.source}
+                source={healthData.environmentalData.source}
                 actionLink="/pollution"
               />
             </div>
           </TabsContent>
           {/* <TabsContent value="mental" className="mt-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {data.mentalHealthReports.map((report) => (
+              {healthData.mentalHealthReports.map((report) => (
                 <AlertCard
                   key={report.id}
                   title={`${report.area} Mental Health Report`}

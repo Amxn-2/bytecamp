@@ -15,9 +15,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchEnvironmentalData } from "@/lib/api";
-import type { EnvironmentalData } from "@/lib/types";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { useHealthStore } from "@/lib/healthStore";
+import { AlertTriangle, Loader2, Wind } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Bar,
@@ -34,14 +33,15 @@ import {
 import { toast } from "sonner";
 
 export default function PollutionPage() {
-  const [data, setData] = useState<EnvironmentalData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const healthData = useHealthStore((state) => state.healthData);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const environmentalData = await fetchEnvironmentalData();
-        setData(environmentalData);
+        // const environmentalData = await fetchEnvironmentalData();
+        // setData(environmentalData);
       } catch (error) {
         console.error("Error loading environmental data:", error);
         toast.error("Failed to load environmental data");
@@ -60,7 +60,7 @@ export default function PollutionPage() {
     );
   }
 
-  if (!data) {
+  if (!healthData?.environmentalData) {
     return (
       <div className="container flex flex-col items-center justify-center min-h-[60vh] gap-2">
         <AlertTriangle className="h-8 w-8 text-destructive" />
@@ -72,12 +72,12 @@ export default function PollutionPage() {
 
   // Prepare air quality data for chart
   const airQualityData = [
-    { name: "PM2.5", value: data.airQuality.pm25 },
-    { name: "PM10", value: data.airQuality.pm10 },
-    { name: "O3", value: data.airQuality.o3 },
-    { name: "NO2", value: data.airQuality.no2 },
-    { name: "SO2", value: data.airQuality.so2 },
-    { name: "CO", value: data.airQuality.co * 10 }, // Scale up CO for visibility
+    { name: "PM2.5", value: healthData?.environmentalData.airQuality.pm25 },
+    { name: "PM10", value: healthData?.environmentalData.airQuality.pm10 },
+    { name: "O3", value: healthData?.environmentalData.airQuality.o3 },
+    { name: "NO2", value: healthData?.environmentalData.airQuality.no2 },
+    { name: "SO2", value: healthData?.environmentalData.airQuality.so2 },
+    { name: "CO", value: healthData?.environmentalData.airQuality.co! * 10 }, // Scale up CO for visibility
   ];
 
   // Mock historical data for line chart (latest month reflects current air quality)
@@ -90,33 +90,51 @@ export default function PollutionPage() {
     { date: "Jun", aqi: 130, pm25: 65, pm10: 95 },
     {
       date: "Jul",
-      aqi: data.airQuality.aqi,
-      pm25: data.airQuality.pm25,
-      pm10: data.airQuality.pm10,
+      aqi: healthData?.environmentalData.airQuality.aqi,
+      pm25: healthData?.environmentalData.airQuality.pm25,
+      pm10: healthData?.environmentalData.airQuality.pm10,
     },
   ];
 
   const airChartData = [
-    { parameter: "AQI", value: data.airQuality.aqi },
-    { parameter: "PM2.5", value: data.airQuality.pm25 },
-    { parameter: "PM10", value: data.airQuality.pm10 },
-    { parameter: "O₃", value: data.airQuality.o3 },
-    { parameter: "NO₂", value: data.airQuality.no2 },
-    { parameter: "SO₂", value: data.airQuality.so2 },
-    { parameter: "CO", value: data.airQuality.co },
+    { parameter: "AQI", value: healthData?.environmentalData.airQuality.aqi },
+    {
+      parameter: "PM2.5",
+      value: healthData?.environmentalData.airQuality.pm25,
+    },
+    { parameter: "PM10", value: healthData?.environmentalData.airQuality.pm10 },
+    { parameter: "O₃", value: healthData?.environmentalData.airQuality.o3 },
+    { parameter: "NO₂", value: healthData?.environmentalData.airQuality.no2 },
+    { parameter: "SO₂", value: healthData?.environmentalData.airQuality.so2 },
+    { parameter: "CO", value: healthData?.environmentalData.airQuality.co },
   ];
 
   const waterChartData = [
-    { parameter: "pH", value: data.waterQuality.ph },
-    { parameter: "Turbidity", value: data.waterQuality.turbidity },
-    { parameter: "Dissolved O₂", value: data.waterQuality.dissolvedOxygen },
-    { parameter: "Conductivity", value: data.waterQuality.conductivity },
-    { parameter: "Temperature", value: data.waterQuality.temperature },
+    { parameter: "pH", value: healthData?.environmentalData.waterQuality.ph },
+    {
+      parameter: "Turbidity",
+      value: healthData?.environmentalData.waterQuality.turbidity,
+    },
+    {
+      parameter: "Dissolved O₂",
+      value: healthData?.environmentalData.waterQuality.dissolvedOxygen,
+    },
+    {
+      parameter: "Conductivity",
+      value: healthData?.environmentalData.waterQuality.conductivity,
+    },
+    {
+      parameter: "Temperature",
+      value: healthData?.environmentalData.waterQuality.temperature,
+    },
   ];
 
   const noiseChartData = [
-    { parameter: "Average", value: data.noiseLevel.average },
-    { parameter: "Peak", value: data.noiseLevel.peak },
+    {
+      parameter: "Average",
+      value: healthData?.environmentalData.noiseLevel.average,
+    },
+    { parameter: "Peak", value: healthData?.environmentalData.noiseLevel.peak },
   ];
 
   return (
@@ -127,51 +145,52 @@ export default function PollutionPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <DataCard
-          title="Air Quality Index"
-          value={data.airQuality.aqi}
-          description="Current AQI level"
+          title="US Air Quality Index (AQI)"
+          value={healthData.environmentalData.airQuality.aqi}
+          description="Current AQI level based on US standards"
           status={
-            data.airQuality.aqi < 50
+            healthData.environmentalData.airQuality.aqi < 50
               ? "success"
-              : data.airQuality.aqi < 100
+              : healthData.environmentalData.airQuality.aqi < 100
               ? "info"
-              : data.airQuality.aqi < 150
+              : healthData.environmentalData.airQuality.aqi < 150
               ? "warning"
               : "error"
           }
+          icon={<Wind className="h-4 w-4 text-muted-foreground" />}
         />
         <DataCard
           title="PM2.5"
-          value={`${data.airQuality.pm25} µg/m³`}
+          value={`${healthData?.environmentalData.airQuality.pm25} µg/m³`}
           description="Fine particulate matter"
           status={
-            data.airQuality.pm25 < 12
+            healthData?.environmentalData.airQuality.pm25! < 12
               ? "success"
-              : data.airQuality.pm25 < 35
+              : healthData?.environmentalData.airQuality.pm25! < 35
               ? "warning"
               : "error"
           }
         />
         <DataCard
           title="PM10"
-          value={`${data.airQuality.pm10} µg/m³`}
+          value={`${healthData?.environmentalData.airQuality.pm10} µg/m³`}
           description="Coarse particulate matter"
           status={
-            data.airQuality.pm10 < 54
+            healthData?.environmentalData.airQuality.pm10! < 54
               ? "success"
-              : data.airQuality.pm10 < 154
+              : healthData?.environmentalData.airQuality.pm10! < 154
               ? "warning"
               : "error"
           }
         />
         <DataCard
           title="Ozone (O₃)"
-          value={`${data.airQuality.o3} ppb`}
+          value={`${healthData?.environmentalData.airQuality.o3} ppb`}
           description="Ground-level ozone"
           status={
-            data.airQuality.o3 < 54
+            healthData?.environmentalData.airQuality.o3! < 54
               ? "success"
-              : data.airQuality.o3 < 70
+              : healthData?.environmentalData.airQuality.o3! < 70
               ? "warning"
               : "error"
           }
@@ -255,7 +274,7 @@ export default function PollutionPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <MapView sensors={data.sensors} />
+            <MapView sensors={healthData?.environmentalData.sensors} />
           </CardContent>
         </Card>
       </div>

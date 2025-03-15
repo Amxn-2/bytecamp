@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { fetchDiseaseOutbreaks } from "@/lib/api";
+import { useHealthStore } from "@/lib/healthStore";
 import type { DiseaseOutbreak } from "@/lib/types";
 import {
   Activity,
@@ -33,17 +33,13 @@ export default function OutbreakDetailPage() {
   const [outbreak, setOutbreak] = useState<DiseaseOutbreak | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const healthData = useHealthStore((state) => state.healthData);
   useEffect(() => {
     async function loadData() {
       try {
-        const outbreakData = await fetchDiseaseOutbreaks();
-
-        if (!outbreakData) {
-          toast.error("Failed to load outbreak data");
-          return;
-        }
-
-        const foundOutbreak = outbreakData.find((o) => o.id === params.id);
+        const foundOutbreak = healthData?.diseaseOutbreaks.find(
+          (o) => o.id === params.id
+        );
 
         if (!foundOutbreak) {
           toast.error("Outbreak not found");
