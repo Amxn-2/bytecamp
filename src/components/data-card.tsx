@@ -19,7 +19,7 @@ interface DataCardProps {
   trendValue?: string;
   className?: string;
   icon?: React.ReactNode;
-  status?: "success" | "warning" | "error" | "info";
+  status?: "good" | "hazardous" | "great" | "critical";
 }
 
 export default function DataCard({
@@ -41,11 +41,11 @@ export default function DataCard({
           {status && (
             <Badge
               variant={
-                status === "success"
+                status === "good"
                   ? "default"
-                  : status === "warning"
+                  : status === "hazardous"
                   ? "secondary"
-                  : status === "error"
+                  : status === "critical"
                   ? "destructive"
                   : "outline"
               }

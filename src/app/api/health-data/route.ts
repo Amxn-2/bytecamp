@@ -10,7 +10,7 @@ export async function GET() {
     const prompt = `
       Provide the most recent health data for Mumbai as of the current date and time, including environmental data, disease outbreaks, and mental health reports, in the following JSON format. 
       
-      Use only authentic and generic sources such as the Maharashtra government, Mumbai government, BMC, MCGM, etc., and reputable news outlets like Lokmat, New Today, TimesofIndia, etc. If any news is originally in Marathi, translate it appropriately into English. For every data section, include a "source" field with the name of the source and its exact URL so that the user can verify the information. Ensure that the data, particularly about disease outbreaks, is valid and accurate. For AQI, use the US AQI scale and websites like AQICN, OpenAQ, etc., for reference. For water quality, use the WHO guidelines and Maharashtra pollution control board. For noise levels, use the WHO guidelines and standards with official maharashtra government data as well as trusted sources. For disease outbreaks, include the disease name, severity, affected areas, case count, start date, status, symptoms, and prevention measures. For mental health reports, include the area, stress, anxiety, depression levels, report count, sentiment analysis, and source.
+      Use only authentic and generic sources such as the Maharashtra government, Mumbai government, BMC, MCGM, etc., and reputable news outlets like Lokmat, New Today, TimesofIndia, etc. If any news is originally in Marathi, translate it appropriately into English. For every data section, include a "source" field with the name of the source and its exact URL so that the user can verify the information. Ensure that the data, particularly about disease outbreaks, is valid and accurate. For AQI, use the US AQI scale and websites like AQICN, OpenAQ, etc., for reference. For water quality, use the WHO guidelines and Maharashtra pollution control board and provide only drinkable waters data. For noise levels, use the WHO guidelines and standards with official maharashtra government data as well as trusted sources. For disease outbreaks, include the disease name, severity, affected areas, case count, start date, status, symptoms, and prevention measures. For mental health reports, include the area, stress, anxiety, depression levels, report count, sentiment analysis, and source. Keep fluctuacting data to a close to minimum for AQI, Noise, Temperature and ensure that the data is up-to-date and relevant to the current situation in Mumbai. For Flood prediction use latest data and provide the location, severity, and forecast time but make sure its not recurring and only 1 out of 20 times.
 
       {
         "timestamp": "ISO date string",
@@ -38,45 +38,46 @@ export async function GET() {
           },
           "sensors": [
             {
-              "id": string,
+              "id": "string",
               "type": "air" | "water" | "noise",
               "location": { "latitude": number, "longitude": number },
               "reading": number,
-              "unit": string,
+              "unit": "string",
               "lastUpdated": "ISO date string"
             }
           ],
           "source": {
-            "name": string,
-            "url": string
+            "name": "string",
+            "url": "string"
           }
         },
         "diseaseOutbreaks": [
           {
-            "id": string,
-            "disease": string,
-            "severity": "low" | "medium" | "high",
+            "id": "string",
+            "disease": "string",
+            "severity": "low" | "medium" | "high" | "critical",
             "affectedAreas": [
               {
-                "name": string,
+                "name": "string",
                 "location": { "latitude": number, "longitude": number },
                 "caseCount": number
               }
             ],
             "startDate": "ISO date string",
             "status": "active" | "contained" | "resolved",
-            "symptoms": string[],
-            "preventionMeasures": string[],
+            "symptoms": ["string"],
+            "preventionMeasures": ["string"],
             "source": {
-              "name": string,
-              "url": string
-            }
+              "name": "string",
+              "url": "string"
+            },
+            "expertVerified": boolean
           }
         ],
         "mentalHealthReports": [
           {
-            "id": string,
-            "area": string,
+            "id": "string",
+            "area": "string",
             "location": { "latitude": number, "longitude": number },
             "stressLevel": number,
             "anxietyLevel": number,
@@ -89,12 +90,18 @@ export async function GET() {
               "neutral": number
             },
             "source": {
-              "name": string,
-              "url": string
+              "name": "string",
+              "url": "string"
             }
           }
-        ]
+        ],
+        "floodForecast": {
+          "location": { "latitude": number, "longitude": number },
+          "severity": "low" | "medium" | "high" | "critical",
+          "forecastTime": "ISO date string"
+        }
       }
+
     `;
 
     const result = await model.generateContent(prompt);

@@ -11,7 +11,7 @@ interface HealthStore {
   addDiseaseOutbreak: (outbreak: DiseaseOutbreak) => void;
   updateDiseaseOutbreak: (
     id: string,
-    updated: Partial<DiseaseOutbreak>
+    updated: Partial<DiseaseOutbreak & { expertVerified?: boolean }>
   ) => void;
   deleteDiseaseOutbreak: (id: string) => void;
   // You can add similar functions for mental health reports or sensors as needed.

@@ -3,6 +3,7 @@ export interface MumbaiHealthData {
   environmentalData: EnvironmentalData;
   diseaseOutbreaks: DiseaseOutbreak[];
   mentalHealthReports: MentalHealthReport[];
+  floodForecast?: FloodForecast;
 }
 
 export interface EnvironmentalData {
@@ -60,6 +61,7 @@ export interface DiseaseOutbreak {
   };
   symptoms: string[];
   preventionMeasures: string[];
+  expertVerified?: boolean;
 }
 
 export interface MentalHealthReport {
@@ -80,6 +82,12 @@ export interface MentalHealthReport {
     name: string;
     url: string;
   };
+}
+
+export interface FloodForecast {
+  location: GeoLocation;
+  severity: "low" | "medium" | "high" | "critical";
+  forecastTime: string;
 }
 
 export interface GeoLocation {

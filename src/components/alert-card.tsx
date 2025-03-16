@@ -25,6 +25,7 @@ interface AlertCardProps {
   actionLink?: string;
   actionText?: string;
   className?: string;
+  expertVerified?: boolean;
 }
 
 export default function AlertCard({
@@ -37,6 +38,7 @@ export default function AlertCard({
   actionLink,
   actionText = "View Details",
   className,
+  expertVerified,
 }: AlertCardProps) {
   const getSeverityColor = () => {
     switch (severity) {
@@ -113,6 +115,14 @@ export default function AlertCard({
         >
           {severity.charAt(0).toUpperCase() + severity.slice(1)} Severity
         </Badge>
+        {expertVerified && (
+          <Badge
+            variant="default"
+            className="bg-green-50 text-green-700 border-green-200 hover:pointer-events-none"
+          >
+            Expert Certified
+          </Badge>
+        )}
         {actionLink && (
           <Button variant="outline" size="sm" asChild>
             <Link href={actionLink}>{actionText}</Link>

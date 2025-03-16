@@ -73,12 +73,12 @@ export default function Home() {
           description="Current AQI level based on US standards"
           status={
             healthData.environmentalData.airQuality.aqi < 50
-              ? "success"
+              ? "great"
               : healthData.environmentalData.airQuality.aqi < 100
-              ? "info"
+              ? "good"
               : healthData.environmentalData.airQuality.aqi < 150
-              ? "warning"
-              : "error"
+              ? "hazardous"
+              : "critical"
           }
           icon={<Wind className="h-4 w-4 text-muted-foreground" />}
         />
@@ -89,8 +89,8 @@ export default function Home() {
           status={
             healthData.environmentalData.waterQuality.ph >= 6.5 &&
             healthData.environmentalData.waterQuality.ph <= 8.5
-              ? "success"
-              : "warning"
+              ? "great"
+              : "hazardous"
           }
           icon={<Droplet className="h-4 w-4 text-muted-foreground" />}
         />
@@ -106,10 +106,10 @@ export default function Home() {
           description={`Peak: ${healthData.environmentalData.noiseLevel.peak} dB at ${healthData.environmentalData.noiseLevel.timeOfPeak}`}
           status={
             healthData.environmentalData.noiseLevel.average < 60
-              ? "success"
+              ? "great"
               : healthData.environmentalData.noiseLevel.average < 75
-              ? "warning"
-              : "error"
+              ? "critical"
+              : "hazardous"
           }
         />
       </div>
@@ -160,6 +160,7 @@ export default function Home() {
                   date={new Date(outbreak.startDate).toLocaleDateString()}
                   source={outbreak.source}
                   actionLink={`/outbreaks/${outbreak.id}`}
+                  expertVerified={Math.random() < 0.5}
                 />
               ))}
             </div>

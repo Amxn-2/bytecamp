@@ -150,12 +150,12 @@ export default function PollutionPage() {
           description="Current AQI level based on US standards"
           status={
             healthData.environmentalData.airQuality.aqi < 50
-              ? "success"
+              ? "great"
               : healthData.environmentalData.airQuality.aqi < 100
-              ? "info"
+              ? "good"
               : healthData.environmentalData.airQuality.aqi < 150
-              ? "warning"
-              : "error"
+              ? "hazardous"
+              : "critical"
           }
           icon={<Wind className="h-4 w-4 text-muted-foreground" />}
         />
@@ -165,10 +165,10 @@ export default function PollutionPage() {
           description="Fine particulate matter"
           status={
             healthData?.environmentalData.airQuality.pm25! < 12
-              ? "success"
+              ? "great"
               : healthData?.environmentalData.airQuality.pm25! < 35
-              ? "warning"
-              : "error"
+              ? "good"
+              : "critical"
           }
         />
         <DataCard
@@ -176,11 +176,11 @@ export default function PollutionPage() {
           value={`${healthData?.environmentalData.airQuality.pm10} µg/m³`}
           description="Coarse particulate matter"
           status={
-            healthData?.environmentalData.airQuality.pm10! < 54
-              ? "success"
-              : healthData?.environmentalData.airQuality.pm10! < 154
-              ? "warning"
-              : "error"
+            healthData?.environmentalData.airQuality.pm25! < 12
+              ? "great"
+              : healthData?.environmentalData.airQuality.pm25! < 35
+              ? "good"
+              : "critical"
           }
         />
         <DataCard
@@ -188,11 +188,11 @@ export default function PollutionPage() {
           value={`${healthData?.environmentalData.airQuality.o3} ppb`}
           description="Ground-level ozone"
           status={
-            healthData?.environmentalData.airQuality.o3! < 54
-              ? "success"
-              : healthData?.environmentalData.airQuality.o3! < 70
-              ? "warning"
-              : "error"
+            healthData?.environmentalData.airQuality.pm25! < 12
+              ? "great"
+              : healthData?.environmentalData.airQuality.pm25! < 35
+              ? "good"
+              : "critical"
           }
         />
       </div>
