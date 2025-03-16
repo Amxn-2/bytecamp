@@ -111,7 +111,7 @@ export default function AlertCard({
               ? "default"
               : "destructive"
           }
-          className="text-black"
+          className="text-red"
         >
           {severity.charAt(0).toUpperCase() + severity.slice(1)} Severity
         </Badge>
