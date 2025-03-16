@@ -31,6 +31,7 @@ const navigation = [
   { name: "Dashboard", href: "/" },
   { name: "Pollution Data", href: "/pollution" },
   { name: "Outbreak Alerts", href: "/outbreaks" },
+  { name: "Weather Data", href: "/weather" },
 ];
 
 export default function Header() {
