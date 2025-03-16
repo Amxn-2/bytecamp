@@ -324,6 +324,89 @@ export default function WeatherPage() {
     loadWeatherData();
   }, []);
 
+  // Generate heatwave zones from affected areas
+  const generateHeatwaveZones = () => {
+    if (!weatherData?.heatwave.current.affectedAreas) return [];
+
+    return weatherData.heatwave.current.affectedAreas.map((area) => {
+      // Create a polygon around the area's coordinates
+      // This is a simplified approach - in a real app, you'd have actual polygon data
+      const areaCoordinates = getAreaCoordinates(area.name);
+
+      return {
+        polygon: createPolygonAroundPoint(
+          areaCoordinates.lat,
+          areaCoordinates.lng,
+          0.01
+        ),
+        temperature: area.temperature,
+        severity:
+          area.heatIndex === "Extreme"
+            ? ("extreme" as const)
+            : area.heatIndex === "Danger"
+            ? ("high" as const)
+            : ("moderate" as const),
+        name: area.name,
+      };
+    });
+  };
+
+  // Helper to get coordinates for an area by name
+  const getAreaCoordinates = (areaName: string) => {
+    // Find the point in temperatureData that matches this area
+    const point = weatherData?.temperatureMap.regions[0].find((p) => {
+      // Check the comment after each point to see if it matches the area name
+      const comment = weatherData.temperatureMap.regions[0].findIndex(
+        (item) => item.lat === p.lat && item.lng === p.lng
+      );
+      return (
+        comment >= 0 &&
+        weatherData.temperatureMap.regions[0][comment] &&
+        areaName.toLowerCase() === getCommentFromIndex(comment).toLowerCase()
+      );
+    });
+
+    // If found, return it, otherwise return Mumbai center
+    return point || { lat: 19.076, lng: 72.877 };
+  };
+
+  // Helper to get the comment from the index in the temperature data
+  const getCommentFromIndex = (index: number) => {
+    const comments = [
+      "Dadar",
+      "Andheri",
+      "Bandra",
+      "Worli",
+      "Colaba",
+      "Chembur",
+      "Powai",
+      "Borivali",
+      "Dahisar",
+      "Mulund",
+      "Parel",
+      "Malad",
+      "Santacruz",
+      "Mahim",
+      "Dharavi",
+    ];
+    return index < comments.length ? comments[index] : "";
+  };
+
+  // Helper to create a polygon around a point
+  const createPolygonAroundPoint = (
+    lat: number,
+    lng: number,
+    offset: number
+  ): [number, number][] => {
+    return [
+      [lat + offset, lng],
+      [lat, lng + offset],
+      [lat - offset, lng],
+      [lat, lng - offset],
+      [lat + offset, lng],
+    ];
+  };
+
   if (loading) {
     return (
       <div className="container flex items-center justify-center min-h-[60vh]">
@@ -370,6 +453,7 @@ export default function WeatherPage() {
 
   const currentHeatwaveStatus = getCurrentHeatwaveStatus();
   const currentFloodStatus = getCurrentFloodStatus();
+  const heatwaveZones = generateHeatwaveZones();
 
   return (
     <div className="container py-4 md:py-6">
@@ -490,6 +574,8 @@ export default function WeatherPage() {
             <WeatherHeatMap
               temperatureData={weatherData.temperatureMap.regions[0]}
               updateTime={weatherData.temperatureMap.updateTime}
+              heatwaveZones={heatwaveZones}
+              showLegend={true}
             />
           </CardContent>
         </Card>
